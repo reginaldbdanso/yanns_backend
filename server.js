@@ -62,17 +62,29 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 4000;
 
-// Connect to MongoDB Atlas
-connectDB().then(() => {
-  // Seed data in development environment
-  if (process.env.NODE_ENV === 'development') {
-    seedAll();
-   
+// Connect to MongoDB Atlas and start server
+const startServer = async () => {
+  try {
+    await connectDB();
+    
+    // Seed data in development environment
+    if (process.env.NODE_ENV === 'development') {
+      try {
+        await seedAll();
+        console.log('Data seeding completed');
+      } catch (seedError) {
+        console.error('Data seeding failed:', seedError);
+        // Continue server startup even if seeding fails
+      }
+    }
+
+    app.listen(PORT, () => {
+      console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
   }
-}).then(() => {
-  app.listen(PORT, () => {
-    console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
-  });
-}).catch((err) => {
-  console.log(err);
-});
+};
+
+startServer();

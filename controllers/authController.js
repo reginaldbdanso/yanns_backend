@@ -4,9 +4,14 @@ const { validationResult } = require('express-validator');
 
 // Generate JWT token
 const generateToken = (userId) => {
-  return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
-    expiresIn: '3h'
-  });
+    try {
+        return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
+            expiresIn: '3h'
+        });
+    } catch (error) {
+        console.error('Token generation error:', error);
+        throw new Error('Failed to generate authentication token');
+    }
 };
 
 // Register a new user
